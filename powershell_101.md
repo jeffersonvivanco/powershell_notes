@@ -61,3 +61,102 @@ to popular belief, `Get-Help` can be used to find commands that don't have help 
 
 * to display the help topic for `Get-Help` `Get-Help -Name Get-Help`
 
+Each of the following parameters are in different parameter sets:
+* Full
+* Detailed
+* Examples
+* Online
+* Parameter Noun
+* ShowWindow
+
+`Help` is a function that pipes `Get-Help` to a function named `more`, which is a wrapper
+for the `more.com` executable file in Windows. In the pwsh console, `help` provides 1 page
+of help at a time. In the ISE, it works the same way as `Get-Help`. Less typing isn't
+always a good thing, however. If you're going to save your commands as a script or share
+them with someone else, be sure to use full cmdlet and parameter names. The full names
+are self documenting, which makes them easier to understand.
+
+To only return info about the `Name` parameter
+`help Get-Help -Parameter Name`
+
+If you want the results in a separate window, use the `Online` parameter or use the
+`Full` parameter and pipe the results to `Out-GridView`
+`help Get-Command -Full | Out-GridView`
+
+To use `Get-Help` to find commands, use the asterisk `*` wildcard character with
+the `Name` parameter. `help *process*`
+
+If what you are attempting to look for are commands that end with `-process`, you
+only need to add the `*` wildcard character to the beginning of the value.
+`help *-process`
+
+To search vaguely, if pwsh doesn't find any matches for what you search in command
+names, it'll search every help topic in pwsh in your system. `Get-Help processes`
+
+The help system in Powershell has to be updated in order for the `About` help topics
+to be present. If for some reason the initial update of the help system failed on
+your computer, the files will not be available until the `Update-Help` cmdlet has
+been run successfully.
+
+#### `Get-Command`
+Is designed to help you locate commands. Running `Get-Command` with no parameters
+returns a list of all the commands on your system.
+
+Find command to work with process
+`Get-Command -Noun Process`
+
+The `Name`, `Noun`, and `Verb` parameters accept wildcards.
+`Get-Command -Name *service*`
+
+Not a good idea to use wildcards with the `Name` parameter of `Get-Command` since
+it also returns executable files that are not native pwsh commands. It's recommended
+to limit results with `CommandType` parameter.
+
+`Get-Command -Name *service* -CommandType Cmdlet, Function, Alias`
+
+A better option is to use either the `Verb` or `Noun` parameter or both of them
+since only pwsh commands have both verbs and nouns.
+
+## Discovering objects, properties, and methods
+
+### Get-Member
+Helps you discover what objects, properties, and methods are available for commands.
+Any command that produces object-based output can be piped to `Get-Member`
+
+#### Properties
+* Retrieving windows time service `Get-Service -Name w32time`
+* Output
+  ```pwsh
+  Status   Name               DisplayName
+  ------   ----               -----------
+  Running  w32time            Windows Time
+  ```
+* `Status`, `Name` and `DisplayName` are examples of properties. The value for the
+  `Status` property is `Running`.
+* pipe the same command to `Get-Member` `Get-Service -Name w32time | Get-Member`
+* output
+  ```pwsh
+  TypeName: System.ServiceProcess.ServiceController
+
+  Name                      MemberType    Definition
+  ----                      ----------    ----------
+  Name                      AliasProperty Name = ServiceName
+  RequiredServices          AliasProperty RequiredServices = ServicesDependedOn
+  Disposed                  Event         System.EventHandler Disposed(System.Object, Sy...
+  Close                     Method        void Close()
+  Continue                  Method        void Continue()
+
+  ...
+
+  ```
+* The first line of the results in the previous example contains one piece of very
+  important information. `TypeName` tells you what type of object was returned.
+  In this ex, a `System.ServiceProcess.ServiceController` object was returned. This
+  is often abbrv as the portion of the `TypeName` just after the last period; `ServiceController`
+  in this ex.
+* once u know what type of object a command produces, you can use this info to
+  find commands that accept that type of object as input
+  `Get-Command -ParameterType ServiceController`
+* All of those commands have a paremter that accepts a `ServiceController` object
+  type by pipeline, parameter input, or both.
+

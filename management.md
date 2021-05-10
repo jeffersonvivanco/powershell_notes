@@ -2,7 +2,11 @@
 The Management module contains cmdlets that help you manage Windows in Powershell.
 
 ## `Add-Content`
-Adds content to the specified items, such as adding words to a file.
+Appends content to a specified item or file. You can specify the content by typing the
+content in the command or by specifying an object that contains the content.
+* add a string to all text files with an exception. This example appends a value to text
+  files in the current directory but excludes files based on their file name
+  `Add-Content -Path .\*.txt -Exclude help* -Value 'End of file'`
 
 ## `Clear-Content`
 Deletes the contents of an item, but does not delete the item.
@@ -50,7 +54,13 @@ Gets drives in the current session.
 Moves an item from one location to another.
 
 ## `New-Item`
-Creates a new item.
+Creates a new item and sets its value. The types of items that can be created
+depend on the location of the item. For example, in the filesystem it creates
+files and folders, in the registry, it creates registry keys and entries.
+
+* create a file in the current directory 
+  `New-Item -Path . -Name "testfile1.txt -ItemType "file" -Value "This is a string."`
+* create a directory `New-Item -Path "c:\" -Name "logfiles" -ItemType "directory"
 
 ## `New-PSDrive`
 Creates temporary and persistent mapped network drives
@@ -69,10 +79,15 @@ Renames an item in a powershell provider namespace.
 Restarts the OS on local and remote computers.
 
 ## `Set-Clipboard`
-Sets the contents of the clipboard.
+Sets the contents of the clipboard. On linux, this cmdlet requires the `xclip` utility
+to be in the path.
+
+* copy text to the clipboard `Set-Clipboard -Value 'hello!'`
 
 ## `Set-Content`
-Writes a new content or replaces existing content in a file.
+Is a string-processing cmdlet that writes new content or replaces the content in a file.
+
+* replace the contents of multiple files in a directory `Set-Content -Path .\Test*.txt -Value 'Hello, World'`
 
 ## `Set-Item`
 Changes the value of an item to the value specified in the command.
@@ -94,6 +109,7 @@ using alternate credentials.
 * print a text file `Start-Process -FilePath "myfile.txt" -WorkingDirectory "C:\PS-Test" -Verb Print`
 * start a process in a maximized window `Start-Process -FilePath "notepad" -Wait -WindowStyle Maximized`
 * start powershell as an admin `Start-Process -FilePath "powershell" -Verb RunAs`
+* specifying args to a process `Start-Process -FilePath "$env:comspec" -ArgumentList "/c dir `"%systemdrive%\program files`""`
 
 ## `Stop-Computer`
 Stops (shuts down) local and remote computers
